@@ -29,6 +29,7 @@
 
 #include "args.h"
 #include "config.h"
+#include "version.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -47,7 +48,7 @@ static void args_usage( const char* fmt, ... )
     va_end( ap );
     fputc( '\n', stderr );
   }
-  fprintf( stderr, "usage: photoalbum [-h|--help] [-v|--verbose] [-n|--dry-run] <glob-pattern> [glob-pattern] [...]\n" );
+  fprintf( stderr, "usage: photo-organizer [-V|--version] [-h|--help] [-v|--verbose] [-n|--dry-run] <glob-pattern> [glob-pattern] [...]\n" );
 }
 
 static void args_init_config( void )
@@ -91,6 +92,12 @@ bool args_parse( int argc, char* const argv[] )
         || strcmp( "--help", argstr ) == 0 )
       {
         args_usage( NULL );
+        return false;
+      }
+      else if( strcmp( "-V", argstr ) == 0
+        || strcmp( "--version", argstr ) == 0 )
+      {
+        fprintf( stdout, "photo-organizer: %s\n", version() );
         return false;
       }
       else
