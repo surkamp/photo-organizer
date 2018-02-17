@@ -41,6 +41,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
+#include <time.h>
 
 typedef unsigned char buffer_type;
 
@@ -124,6 +125,35 @@ static bool organize_read_date_from_exif( const char* filename, buffer_type* buf
   exif_data_unref( data );
 
   return false;
+}
+
+static bool organize_read_date_from_stat( const char* filename, char* buff, size_t buff_size )
+{
+  static struct stat stat_buff;
+  static struct tm time_buff;
+
+  if( stat( filename, &stat_buff ) < 0 )
+  {
+    fprintf( stderr, "stat(2) failed for file %s: (%d) %s\n", filename, errno,
+      strerror( errno ) );
+    return false;
+  }
+
+  if( localtime_r( &stat_buff.st_mtime, &time_buff ) == NULL )
+  {
+    fprintf( stderr, "localtime_r(3) failed for file %s: (%d) %s\n", filename,
+      errno, strerror( errno ) );
+    return false;
+  }
+
+  if( strftime( buff, buff_size, "%Y-%m-%d", &time_buff ) == 0 )
+  {
+    fprintf( stderr, "strftime(3) failed for file %s: (%d) %s\n", filename,
+      errno, strerror( errno ) );
+    return false;
+  }
+
+  return true;
 }
 
 static bool organize_create_directory( const char* directory )
@@ -221,7 +251,13 @@ bool organize( const char* pattern )
   {
     curr = *( myglob.gl_pathv + match );
     if(
-      ! organize_read_date_from_exif( curr, (buffer_type*)date_buff, date_buff_size )
+      ! (
+        // try EXIF...
+        organize_read_date_from_exif( curr, (buffer_type*)date_buff,
+          date_buff_size )
+        // if EXIF is unavailable, use file's stat.st_mtime
+        || organize_read_date_from_stat( curr, date_buff, date_buff_size )
+      )
       || ! organize_create_directory( date_buff )
       || ! organize_move( curr, date_buff ) )
     {
