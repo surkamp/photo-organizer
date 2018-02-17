@@ -7,8 +7,6 @@ Year-Month-Day) and move the photos to it's respective directory.
 
 ## Known issues
 * Current directory files processing only (files must be on current directory)
-* No fallback to filesystem object creation date time when no EXIF information
-  is available
 * Unable to move files between different mount points
 
 ## Dependencies
