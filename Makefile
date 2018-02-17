@@ -7,7 +7,7 @@ CFLAGS=-std=c99 -Wall -Werror -ggdb -O2 -I$(INCLUDEDIR) -D_DEFAULT_SOURCE
 
 LIBS=-lexif
 
-_OBJ = main.o args.o organize.o
+_OBJ = main.o args.o organize.o version.o
 OBJ = $(patsubst %,$(BUILDDIR)/%,$(_OBJ))
 
 .PHONY: clean
